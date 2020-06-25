@@ -1,0 +1,85 @@
+﻿@page "/settings"
+@using AstroLib.Interfaces;
+@inject ICamera CameraService
+
+<h1>Camera Settings</h1>
+
+<div>
+    <p><h3>Camera: @CameraService.Name</h3></p>
+    <EditForm Model="@CameraService"
+              OnValidSubmit="@OnValidSubmit"
+              OnInvalidSubmit="@OnInvalidSubmit">
+        <table style="margin-left:auto; margin-right:auto;">
+            <tr>
+                <td> <label for="brightness">Brightness</label> </td>
+                <td> <InputNumber id="brightness" @bind-Value="@CameraService.Brightness" /> </td>
+            </tr>
+
+            <tr>
+                <td> <label for="contrast">Contrast</label> </td>
+                <td><InputNumber id="contrast" @bind-Value="@CameraService.Contrast" /></td>
+            </tr>
+
+            <tr>
+                <td> <label for="exposure">Exposure</label> </td>
+                <td> <InputNumber id="exposure" @bind-Value="@CameraService.ExposureCompensation" /> </td>
+            </tr>
+
+            <tr>
+                <td><label for="iso">ISO</label></td>
+                <td><InputNumber id="iso" @bind-Value="@CameraService.ISO" /></td>
+            </tr>
+            <tr>
+                <td><label for="resolution">Resolution</label></td>
+                <td>
+                    <InputSelect id="resolution" @bind-Value="@CameraService.Resolution">
+                        @foreach (var i in Resolutions)
+                        {
+                            <option value="@i.Key">@i.Value</option>
+                        }
+                    </InputSelect>
+                </td>
+            </tr>
+            <tr>
+
+                <td><label for="saturation">Saturation</label> </td>
+                <td><InputNumber id="saturation" @bind-Value="@CameraService.Saturation" /></td>
+            </tr>
+            <tr>
+                <td><label for="sharpness">Sharpness</label></td>
+                <td><InputNumber id="sharpness" @bind-Value="@CameraService.Sharpness" /></td>
+            </tr>
+
+            <tr>
+                <td><label for="shutter">Shutter Speed (ms)</label></td>
+                <td><InputNumber id="shutter" @bind-Value="@CameraService.ShutterSpeed" /></td>
+            </tr>
+        </table>
+    </EditForm>
+
+</div>
+
+@code {
+
+    private Dictionary<SupportedResolution, string> Resolutions { get; set; } = new Dictionary<SupportedResolution, string>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        foreach (var c in (SupportedResolution[])Enum.GetValues(typeof(SupportedResolution)))
+        {
+            Resolutions.Add(c, Enum.GetName(typeof(SupportedResolution), c));
+        }
+    }
+
+    private void OnInvalidSubmit()
+    {
+
+    }
+
+    private void OnValidSubmit()
+    {
+
+    }
+}

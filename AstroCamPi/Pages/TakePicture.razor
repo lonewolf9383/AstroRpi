@@ -1,0 +1,114 @@
+﻿@page "/takepicture"
+
+@using AstroLib.Interfaces;
+@using AstroLib.Model;
+@inject CameraService CamService;
+
+
+ 
+<h1>Take Picture</h1>
+
+<div>
+    <div>
+        <EditForm Model="@this">
+            <InputSelect id="resolution" @bind-Value="@SelectedState">
+                @foreach (var i in CameraStateList)
+                {
+                    <option value="@i.Key">@i.Value</option>
+                }
+            </InputSelect>
+        </EditForm>
+        <button @onclick="OnTakePicture">@CameraButtonText</button>
+    </div>
+@if (ImgData != null)
+{
+    <p>
+        @if (SelectedState == CaptureState.Continous)
+        {
+            <h3>Frame: @FrameCount</h3>
+        }
+
+        <h3>Focus Score: @FocusScore</h3>
+        <br />
+        <img style="width: 100%;" src=@ImgData asp-append-version="true" />
+    </p>
+}
+else
+{
+    <p><em>No Picture</em></p>
+}
+</div>
+
+   
+
+    @code {
+
+        private enum CaptureState
+        {
+            Preview,
+            Single,
+            Continous
+        }
+
+        private string ImgData { get; set; }
+        private double FocusScore { get; set; }
+        private string CameraButtonText { get { return CamService.IsRunning ? "Stop" : "Start"; } }
+        private int FrameCount { get; set; }
+        private Dictionary<CaptureState, string> CameraStateList = new Dictionary<CaptureState, string>();
+        private CaptureState SelectedState { get; set; }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+
+            CamService.FrameReady += OnFrameReady;
+            CameraStateList.Add(CaptureState.Preview, "Preview");
+            CameraStateList.Add(CaptureState.Continous, "Continuous");
+            CameraStateList.Add(CaptureState.Single, "Single Frame");
+        }
+
+        private  void OnFrameReady(CameraService sender, PictureFrame frame)
+        {
+            InvokeAsync (
+                () =>
+                {
+                    ImgData = frame.ImageUrl;
+                    FocusScore = frame.FocusScore;
+                    ++FrameCount;
+
+                    StateHasChanged();
+                }
+            );
+        }
+
+        private async void OnTakePicture()
+        {
+            if (CamService.IsRunning)
+            {
+                CamService.StopContinuousPictures();
+            }
+            else
+            {
+                FrameCount = 0;
+
+                switch (SelectedState)
+                {
+                    case CaptureState.Continous:
+                    case CaptureState.Preview:
+
+                        CamService.StartContinuousPictures(100, SelectedState == CaptureState.Preview);
+                        break;
+
+                    case CaptureState.Single:
+                        await CamService.TakePicture(100);
+                        break;
+
+                }
+
+            }
+
+            StateHasChanged();
+        }
+
+
+    }

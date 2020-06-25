@@ -1,0 +1,3 @@
+[submodule "MMALSharp"]
+	path = MMALSharp
+	url = https://github.com/techyian/MMALSharp.git
