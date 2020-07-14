@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using AstroCamPi.Data;
 using AstroLib;
 using AstroLib.Model;
 using AstroLib.Interfaces;
@@ -31,7 +30,6 @@ namespace AstroCamPi
 		{
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
-			services.AddSingleton<WeatherForecastService>();
 			services.AddSingleton<CameraService>();
 #if DEBUG
 			services.AddSingleton<ICamera, DummyCamera>();

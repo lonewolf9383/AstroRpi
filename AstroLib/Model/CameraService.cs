@@ -46,7 +46,7 @@ namespace AstroLib.Model
 			StartSession(DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
 		}
 
-		private async Task<PictureFrame> CapturePicture(int quality, string fileName)
+		private async Task<PictureFrame> CapturePicture(int quality, string fileName, bool appendVersion)
 		{
 			string savePath = Path.Combine("wwwroot", fileName);
 			byte[] imageData = await Camera.TakePicture(quality);
@@ -55,7 +55,10 @@ namespace AstroLib.Model
 			{
 				await fs.WriteAsync(imageData, 0, imageData.Length);
 			}
-
+			if (appendVersion)
+			{
+				fileName = string.Format("{0}?r={1}", fileName, DateTime.Now.Ticks.ToString("X"));
+			}
 			PictureFrame frame = new PictureFrame { ImageUrl = fileName, FocusScore = _focusAnalysis.Score(imageData) };
 			FrameReady?.Invoke(this, frame);
 			return frame;
@@ -94,7 +97,7 @@ namespace AstroLib.Model
 		public async Task<PictureFrame> TakePicture(int quality)
 		{
 			string imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", DateTime.Now.ToString("HH_mm_ss_ff")));
-			return await CapturePicture(quality, imageFileName);
+			return await CapturePicture(quality, imageFileName, false);
 		}
 
 		public async Task TakeContinousPicturesAsync(int quality, bool isPreview, CancellationToken token)
@@ -114,7 +117,7 @@ namespace AstroLib.Model
 				if (!isPreview)
 					imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", DateTime.Now.ToString("HH_mm_ss_ff")));
 
-				await CapturePicture(quality, imageFileName);
+				await CapturePicture(quality, imageFileName, isPreview);
 
 				TimeSpan time = frameTime - s.Elapsed;
 				if (time > TimeSpan.Zero)
