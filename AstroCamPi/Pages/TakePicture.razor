@@ -1,24 +1,31 @@
-﻿@page "/takepicture"
-
-@using AstroLib.Interfaces;
-@using AstroLib.Model;
-@inject CameraService CamService;
-
+﻿@inherits TakePictureBase
+@page "/takepicture"
 
  
-<h1>Take Picture</h1>
+<h3>Take Picture</h3>
 
 <div>
-    <div>
+    <div >
         <EditForm Model="@this">
-            <InputSelect id="resolution" @bind-Value="@SelectedState">
-                @foreach (var i in CameraStateList)
-                {
-                    <option value="@i.Key">@i.Value</option>
-                }
-            </InputSelect>
+            <div class="form-group row">
+                    <InputSelect id="mode" class="col-sm-4 form-control mr-2" @bind-Value="@SelectedState" disabled="@DisableEdits">
+                        @foreach (var i in CameraStateList)
+                        {
+                            <option value="@i.Key">@i.Value</option>
+                        }
+                    </InputSelect>
+
+      
+                    <InputSelect id="config" class="col-sm-5 form-control mr-2" @bind-Value="@SelectedConfigName" disabled="@DisableEdits">
+                        @foreach (var i in SettingsService.Settings.OrderBy(x => x.Name))
+                        {
+                            <option value="@i.Name">@i.Name</option>
+                        }
+                    </InputSelect>
+                    <button class="btn btn-info col-sm-2 form-control" disabled="@DisableEdits" @onclick="EditSelectedConfig_Clicked">Edit</button>
+            </div>
         </EditForm>
-        <button @onclick="OnTakePicture">@CameraButtonText</button>
+        <button class="btn btn-success" @onclick="OnTakePicture">@CameraButtonText</button>
     </div>
 @if (ImgData != null)
 {
@@ -39,76 +46,4 @@ else
 }
 </div>
 
-   
-
-    @code {
-
-        private enum CaptureState
-        {
-            Preview,
-            Single,
-            Continous
-        }
-
-        private string ImgData { get; set; }
-        private double FocusScore { get; set; }
-        private string CameraButtonText { get { return CamService.IsRunning ? "Stop" : "Start"; } }
-        private int FrameCount { get; set; }
-        private Dictionary<CaptureState, string> CameraStateList = new Dictionary<CaptureState, string>();
-        private CaptureState SelectedState { get; set; }
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-
-            CamService.FrameReady += OnFrameReady;
-            CameraStateList.Add(CaptureState.Preview, "Preview");
-            CameraStateList.Add(CaptureState.Continous, "Continuous");
-            CameraStateList.Add(CaptureState.Single, "Single Frame");
-        }
-
-        private  void OnFrameReady(CameraService sender, PictureFrame frame)
-        {
-            InvokeAsync (
-                () =>
-                {
-                    ImgData = frame.ImageUrl;
-                    FocusScore = frame.FocusScore;
-                    ++FrameCount;
-
-                    StateHasChanged();
-                }
-            );
-        }
-
-        private async void OnTakePicture()
-        {
-            if (CamService.IsRunning)
-            {
-                CamService.StopContinuousPictures();
-            }
-            else
-            {
-                FrameCount = 0;
-
-                switch (SelectedState)
-                {
-                    case CaptureState.Continous:
-                    case CaptureState.Preview:
-
-                        CamService.StartContinuousPictures(100, SelectedState == CaptureState.Preview);
-                        break;
-
-                    case CaptureState.Single:
-                        await CamService.TakePicture(100);
-                        break;
-
-                }
-
-            }
-
-            StateHasChanged();
-        }
-
-
-    }
+ 

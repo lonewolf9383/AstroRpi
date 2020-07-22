@@ -15,18 +15,14 @@ namespace AstroLib.Model
 	{
 		public string Name => "Dummy Camera";
 
-		public int Brightness { get; set; } = 50;
-		public int Contrast { get; set; } = 50;
-		public int ExposureCompensation { get; set; } = 50;
-		public int ISO { get; set; } = 100;
-		public SupportedResolution Resolution { get; set; } = SupportedResolution.High;
-		public int Saturation { get; set; } = 50;
-		public int Sharpness { get; set; } = 50;
-		public int ShutterSpeed { get; set; } = 1000;
-
 		public DummyCamera()
 		{
 			
+		}
+
+		public void ApplySettings (CameraSettings settings)
+		{
+
 		}
 
 		public Task<byte[]> TakePicture(int quality)

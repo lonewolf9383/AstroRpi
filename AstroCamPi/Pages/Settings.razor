@@ -1,85 +1,73 @@
 ﻿@page "/settings"
-@using AstroLib.Interfaces;
-@inject ICamera CameraService
+@inject AstroLib.Model.SettingsService SettingsService
+@inject NavigationManager NavManager
+@inject IJSRuntime JSRuntime
 
-<h1>Camera Settings</h1>
+<h3>Configurations</h3>
 
-<div>
-    <p><h3>Camera: @CameraService.Name</h3></p>
-    <EditForm Model="@CameraService"
-              OnValidSubmit="@OnValidSubmit"
-              OnInvalidSubmit="@OnInvalidSubmit">
-        <table style="margin-left:auto; margin-right:auto;">
-            <tr>
-                <td> <label for="brightness">Brightness</label> </td>
-                <td> <InputNumber id="brightness" @bind-Value="@CameraService.Brightness" /> </td>
-            </tr>
-
-            <tr>
-                <td> <label for="contrast">Contrast</label> </td>
-                <td><InputNumber id="contrast" @bind-Value="@CameraService.Contrast" /></td>
-            </tr>
-
-            <tr>
-                <td> <label for="exposure">Exposure</label> </td>
-                <td> <InputNumber id="exposure" @bind-Value="@CameraService.ExposureCompensation" /> </td>
-            </tr>
-
-            <tr>
-                <td><label for="iso">ISO</label></td>
-                <td><InputNumber id="iso" @bind-Value="@CameraService.ISO" /></td>
-            </tr>
-            <tr>
-                <td><label for="resolution">Resolution</label></td>
-                <td>
-                    <InputSelect id="resolution" @bind-Value="@CameraService.Resolution">
-                        @foreach (var i in Resolutions)
-                        {
-                            <option value="@i.Key">@i.Value</option>
-                        }
-                    </InputSelect>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col" >Name</th>
+            <th scope="col" ></th>
+        </tr>
+        </thead>
+    <tbody>
+        @foreach (var c in SettingsService.Settings.OrderBy(x => x.Name))
+        {
+            <tr class="tbl">
+                <td>@c.Name</td>
+                <td >
+                    <div class="btn-group">
+                        <button class="btn btn-primary" @onclick="(() => Edit_Clicked(c))">Edit</button>
+                        <button class="btn btn-secondary" @onclick="(() => Copy_Clicked(c))">Copy</button>
+                        <button class="btn btn-danger" @onclick="(() => Delete_Clicked(c))">Delete</button>
+                    </div>
                 </td>
             </tr>
-            <tr>
-
-                <td><label for="saturation">Saturation</label> </td>
-                <td><InputNumber id="saturation" @bind-Value="@CameraService.Saturation" /></td>
-            </tr>
-            <tr>
-                <td><label for="sharpness">Sharpness</label></td>
-                <td><InputNumber id="sharpness" @bind-Value="@CameraService.Sharpness" /></td>
-            </tr>
-
-            <tr>
-                <td><label for="shutter">Shutter Speed (ms)</label></td>
-                <td><InputNumber id="shutter" @bind-Value="@CameraService.ShutterSpeed" /></td>
-            </tr>
-        </table>
-    </EditForm>
-
-</div>
+        }
+    </tbody>
+</table>
 
 @code {
-
-    private Dictionary<SupportedResolution, string> Resolutions { get; set; } = new Dictionary<SupportedResolution, string>();
-
-    protected override void OnInitialized()
+    private void Edit_Clicked(AstroLib.Model.SettingConfig config)
     {
-        base.OnInitialized();
+        NavManager.NavigateTo(string.Format("/settings/{0}", config.Name));
+    }
 
-        foreach (var c in (SupportedResolution[])Enum.GetValues(typeof(SupportedResolution)))
+    private async void Copy_Clicked(AstroLib.Model.SettingConfig config)
+    {
+        try
         {
-            Resolutions.Add(c, Enum.GetName(typeof(SupportedResolution), c));
+            string name = await JSRuntime.InvokeAsync<string>("prompt", "New Config Name");
+            if (string.IsNullOrWhiteSpace(name))
+                return;
+
+
+            SettingsService.AddConfig(config.Clone(name));
+
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", string.Format("Failed to copy '{0}' - {1}", config.Name, ex.Message));
         }
     }
 
-    private void OnInvalidSubmit()
+    private async void Delete_Clicked(AstroLib.Model.SettingConfig config)
     {
-
-    }
-
-    private void OnValidSubmit()
-    {
-
+        try
+        {
+            bool delete = await JSRuntime.InvokeAsync<bool>("confirm", string.Format("Are you sure you want to delete '{0}'?", config.Name));
+            if (delete)
+            {
+                SettingsService.DeleteConfig(config);
+            }
+            StateHasChanged();
+        }
+        catch(Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", string.Format("Failed to delete '{0}' - {1}", config.Name, ex.Message));
+        }
     }
 }

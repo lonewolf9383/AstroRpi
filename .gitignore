@@ -8,3 +8,6 @@
 /AstroLib/obj
 /.vs/AstroCamPi/DesignTimeBuild
 *.user
+/.vs/AstroCamPi/config
+/AstroCamPi/wwwroot/Sessions
+/AstroCamPi/wwwroot/preview.jpg

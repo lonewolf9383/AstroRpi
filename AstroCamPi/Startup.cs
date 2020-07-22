@@ -31,9 +31,11 @@ namespace AstroCamPi
 			services.AddRazorPages();
 			services.AddServerSideBlazor();
 			services.AddSingleton<CameraService>();
+			services.AddSingleton<SettingsService>();
 #if DEBUG
 			services.AddSingleton<ICamera, DummyCamera>();
 			services.AddTransient<IFocusAnalysis, DummyFocusAnalysis>();
+			
 #else
 			services.AddSingleton<ICamera, RpiHDCamera>();
 			services.AddTransient<IFocusAnalysis, LaplacianFocusAnalysis>();

@@ -22,6 +22,7 @@ namespace AstroLib.Model
 		public ICamera Camera { get; private set; }
 		private readonly IFocusAnalysis _focusAnalysis;
 		private readonly IHostEnvironment _env;
+		readonly SettingsService _settingService;
 
 		public bool IsRunning { get { return _runningTask != null; } }
 		CancellationTokenSource _runningToken;
@@ -34,21 +35,21 @@ namespace AstroLib.Model
 		public string SessionName { get; private set; }
 
 		private string SessionPath { get { return Path.Combine("wwwroot", "Sessions", SessionName);  } }
-		//private string GetServerSessionPath (string fileName) { return Path.Combine("wwwroot", GetUrlSessionPath(fileName)); }
+
 		private string GetUrlSessionPath (string fileName) {  return Path.Combine("Sessions", SessionName, fileName); }
 
-		public CameraService(ICamera camera, IFocusAnalysis focusAnalysis, IHostEnvironment env)
+		public CameraService(ICamera camera, IFocusAnalysis focusAnalysis, IHostEnvironment env, SettingsService settingService)
 		{
 			Camera = camera;
 			_focusAnalysis = focusAnalysis;
 			_env = env;
-
-			StartSession(DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
+			_settingService = settingService;
 		}
 
 		private async Task<PictureFrame> CapturePicture(int quality, string fileName, bool appendVersion)
 		{
 			string savePath = Path.Combine("wwwroot", fileName);
+			Camera.ApplySettings(_settingService.ActiveConfig.Settings);
 			byte[] imageData = await Camera.TakePicture(quality);
 
 			using (Stream fs = File.OpenWrite(savePath))
@@ -69,6 +70,9 @@ namespace AstroLib.Model
 			if (IsRunning)
 				return;
 
+			if (!isPreview)
+				StartSession();
+
 			_runningToken = new CancellationTokenSource();
 			_runningTask = Task.Run(async () => { await TakeContinousPicturesAsync(quality, isPreview, _runningToken.Token); });
 		}
@@ -84,9 +88,9 @@ namespace AstroLib.Model
 			}
 		}
 
-		public void StartSession(string name)
+		public void StartSession()
 		{
-			SessionName = name;
+			SessionName = string.Format("{0}_{1}", _settingService.ActiveConfig.Name, DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss"));
 			if (!System.IO.Directory.Exists(SessionPath))
 			{
 				System.IO.Directory.CreateDirectory(SessionPath);
@@ -96,7 +100,9 @@ namespace AstroLib.Model
 
 		public async Task<PictureFrame> TakePicture(int quality)
 		{
-			string imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", DateTime.Now.ToString("HH_mm_ss_ff")));
+			StartSession();
+			string imageFileName = GetUrlSessionPath("1.jpg");
+		
 			return await CapturePicture(quality, imageFileName, false);
 		}
 
@@ -109,13 +115,14 @@ namespace AstroLib.Model
 			Stopwatch s = new Stopwatch();
 			s.Start();
 
+			int count = 1;
 			while (!token.IsCancellationRequested)
 			{
 				s.Restart();
 
 				// Save to different file based on timestamp
 				if (!isPreview)
-					imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", DateTime.Now.ToString("HH_mm_ss_ff")));
+					imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", count++));
 
 				await CapturePicture(quality, imageFileName, isPreview);
 

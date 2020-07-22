@@ -17,17 +17,12 @@ namespace AstroLib.Model
 	{
 		public string Name => "Rpi HD Camera";
 
-		private SupportedResolution _resolution = SupportedResolution.Low;
-		public SupportedResolution Resolution
+		public void ApplySettings(CameraSettings settings)
 		{
-			get
+			lock (this)
 			{
-				return _resolution;
-			}
-			set
-			{
-				_resolution = value;
-				switch (_resolution)
+				// Apply settings to the camera
+				switch (settings.Resolution)
 				{
 					case SupportedResolution.High:
 						MMALSharp.MMALCameraConfig.Resolution = new MMALSharp.Common.Utility.Resolution(4056, 3040);
@@ -42,55 +37,19 @@ namespace AstroLib.Model
 						MMALSharp.MMALCameraConfig.SensorMode = MMALSensorMode.Mode4;
 						break;
 				}
+
+				MMALCameraConfig.Sharpness = settings.Sharpness;
+				MMALCameraConfig.Contrast = settings.Contrast;
+				MMALCameraConfig.Brightness = settings.Brightness;
+				MMALCameraConfig.Saturation = settings.Saturation;
+				MMALCameraConfig.ISO = (int)settings.ISO;
+				MMALCameraConfig.ExposureCompensation = settings.Exposure;
+				MMALCameraConfig.ShutterSpeed = Math.Max(1000, settings.ShutterSpeedMs * 1000);
 			}
-		}
-
-		public int Sharpness
-		{
-			get => (int)MMALCameraConfig.Sharpness;
-			set => MMALCameraConfig.Sharpness = value;
-		}
-
-		public int Contrast
-		{
-			get => (int)MMALCameraConfig.Contrast;
-			set => MMALCameraConfig.Contrast = value;
-		}
-
-		public int Brightness
-		{
-			get => (int)MMALCameraConfig.Brightness;
-			set => MMALCameraConfig.Brightness = value;
-		}
-
-		public int Saturation
-		{
-			get => (int)MMALCameraConfig.Saturation;
-			set => MMALCameraConfig.Saturation = value;
-		}
-
-		public int ISO
-		{
-			get => MMALCameraConfig.ISO;
-			set => MMALCameraConfig.ISO = value;
-		}
-
-		public int ExposureCompensation
-		{
-			get => MMALCameraConfig.ISO;
-			set => MMALCameraConfig.ISO = value;
-		}
-
-		public int ShutterSpeed
-		{
-			get => MMALCameraConfig.ShutterSpeed;
-			set => MMALCameraConfig.ShutterSpeed = value;
 		}
 
 		public RpiHDCamera()
 		{
-			Resolution = SupportedResolution.Low;
-			MMALCamera.Instance.ConfigureCameraSettings();
 		}
 
 		public async Task<byte[]> TakePicture(int quality)
@@ -99,8 +58,10 @@ namespace AstroLib.Model
 			using (var imageEncoder = new MMALImageEncoder())
 			using (var nullSink = new MMALNullSinkComponent())
 			{
-				MMALCamera.Instance.ConfigureCameraSettings();
-
+				lock (this)
+				{
+					MMALCamera.Instance.ConfigureCameraSettings();
+				}
 				MMALPortConfig portConfigJPEG = new MMALPortConfig(MMALEncoding.JPEG, MMALEncoding.I420, quality: quality);
 
 				imageEncoder.ConfigureOutputPort(portConfigJPEG, jpegCaptureHandler);

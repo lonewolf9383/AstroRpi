@@ -1,0 +1,96 @@
+﻿@inherits EditSettingsBase
+@page "/settings/{Name}"
+@page "/takepicture/settings/{Name}"
+@using AstroLib.Interfaces;
+@using AstroLib.Model;
+
+<h3>Edit Config</h3>
+
+<div class="container">
+    @if (Config == null)
+    {
+        <p>Config not found</p>
+        <div class="text-center">
+            <button class="btn btn-danger" type="button" @onclick="Cancel_Clicked">Cancel</button>
+        </div>
+    }
+    else
+    {
+
+        <div>
+            <EditForm Model="@Config"
+                      OnValidSubmit="@OnValidSubmit">
+                <DataAnnotationsValidator />
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 mx-sm-2 col-sm-3 text-sm-right" for="name">Config Name</label>
+                    <InputText class="form-control col-sm-3 " id="name" @bind-Value="@Config.Name" />
+                    <ValidationMessage For="@(() => Config.Name)" />
+
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 mx-sm-2 col-sm-3 text-sm-right" for="brightness">Brightness</label>
+                    <InputNumber class="form-control col-sm-3 " id="brightness" @bind-Value="@Config.Settings.Brightness" />
+                    <ValidationMessage For="@(() => Config.Settings.Brightness)" />
+
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="contrast">Contrast</label>
+                    <InputNumber class="form-control col-sm-3" id="contrast" @bind-Value="@Config.Settings.Contrast" />
+                    <ValidationMessage For="@(() => Config.Settings.Contrast)" />
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="exposure">Exposure</label>
+                    <InputNumber class="form-control col-sm-3" id="exposure" @bind-Value="@Config.Settings.Exposure" />
+                    <ValidationMessage For="@(() => Config.Settings.Exposure)" />
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="iso">ISO</label>
+                    <InputSelect class="form-control col-sm-3" id="iso" @bind-Value="@Config.Settings.ISO">
+                        @foreach (var i in Isos)
+                            {
+                            <option value="@i.Key">@i.Value</option>
+                            }
+                    </InputSelect>
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="resolution">Resolution</label>
+
+                    <InputSelect class="form-control col-sm-3" id="resolution" @bind-Value="@Config.Settings.Resolution">
+                        @foreach (var i in Resolutions)
+                            {
+                            <option value="@i.Key">@i.Value</option>
+                            }
+                    </InputSelect>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="saturation">Saturation</label>
+                    <InputNumber class="form-control col-sm-3" id="saturation" @bind-Value="@Config.Settings.Saturation" />
+                    <ValidationMessage For="@(() => Config.Settings.Saturation)" />
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="sharpness">Sharpness</label>
+                    <InputNumber class="form-control col-sm-3" id="sharpness" @bind-Value="@Config.Settings.Sharpness" />
+                    <ValidationMessage For="@(() => Config.Settings.Sharpness)" />
+                </div>
+
+                <div class="form-group row">
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="shutter">Shutter Speed (ms)</label>
+                    <InputNumber class="form-control col-sm-3" id="shutter" @bind-Value="@Config.Settings.ShutterSpeedMs" />
+                    <ValidationMessage For="@(() => Config.Settings.ShutterSpeedMs)" />
+                </div>
+                <div class="text-center">
+                    <div class="btn-block">
+                        <button class="btn btn-primary">Save</button>
+                        <button class="btn btn-danger" type="button" @onclick="Cancel_Clicked">Cancel</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    }
+</div>
