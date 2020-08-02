@@ -11,7 +11,7 @@ namespace AstroRpi.Pages
     {
 
         [Inject]
-        protected CameraService CamService {get; set;}
+        protected CameraService CamService { get; set; }
 
         [Inject]
         protected SettingsService SettingsService { get; set; }
@@ -23,11 +23,19 @@ namespace AstroRpi.Pages
         {
             Preview,
             Single,
-            Continous
+            Continous,
+            ContinousStacked
         }
 
         protected string ImgData { get; set; }
         protected double FocusScore { get; set; }
+        protected string StackedImgData { get; set; }
+        protected double StackedFocusScore { get; set; }
+        protected bool ShowStacked { get; set; }
+
+        protected string DisplayedImgData => ShowStacked ? StackedImgData : ImgData;
+        protected double DisplayedFocusScore => ShowStacked ? StackedFocusScore : FocusScore;
+
         protected string CameraButtonText { get { return CamService.IsRunning ? "Stop" : "Start"; } }
         protected bool DisableEdits{ get { return CamService.IsRunning && SelectedState != CaptureState.Preview; } }
         protected int FrameCount { get; set; }
@@ -54,9 +62,24 @@ namespace AstroRpi.Pages
             base.OnInitialized();
 
             CamService.FrameReady += OnFrameReady;
+            CamService.StackedFrameReady += OnStackedFrameReady;
             CameraStateList.Add(CaptureState.Preview, "Preview");
             CameraStateList.Add(CaptureState.Continous, "Continuous");
+            CameraStateList.Add(CaptureState.ContinousStacked, "Continuous + Stacked");
             CameraStateList.Add(CaptureState.Single, "Single Frame");
+        }
+
+        private void OnStackedFrameReady(CameraService sender, PictureFrame frame)
+        {
+            InvokeAsync(
+                () =>
+                {
+                    StackedImgData = frame.ImageUrl;
+                    StackedFocusScore = frame.FocusScore;
+
+                    StateHasChanged();
+                }
+            );
         }
 
         protected void OnFrameReady(CameraService sender, PictureFrame frame)
@@ -82,12 +105,12 @@ namespace AstroRpi.Pages
             else
             {
                 FrameCount = 0;
-
                 switch (SelectedState)
                 {
                     case CaptureState.Continous:
                     case CaptureState.Preview:
-                        CamService.StartContinuousPictures(100, SelectedState == CaptureState.Preview);
+                    case CaptureState.ContinousStacked:
+                        CamService.StartContinuousPictures(100, SelectedState == CaptureState.Preview, SelectedState == CaptureState.ContinousStacked);
                         break;
 
                     case CaptureState.Single:

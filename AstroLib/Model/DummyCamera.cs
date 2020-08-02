@@ -27,7 +27,7 @@ namespace AstroLib.Model
 
 		public Task<byte[]> TakePicture(int quality)
 		{
-			string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "moon.jpg");
+			string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stars.jpg");
 			return Task.FromResult(File.ReadAllBytes(filePath).ToArray());
 		}
 	}

@@ -5,8 +5,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="stars.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="moon.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="stars.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 

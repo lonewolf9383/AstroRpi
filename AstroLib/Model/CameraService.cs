@@ -30,13 +30,14 @@ namespace AstroLib.Model
 
 		public delegate void FrameReadyHandler(CameraService sender, PictureFrame frame);
 		public event FrameReadyHandler FrameReady;
+		public event FrameReadyHandler StackedFrameReady;
 
 
 		public string SessionName { get; private set; }
-
-		private string SessionPath { get { return Path.Combine("wwwroot", "Sessions", SessionName);  } }
-
-		private string GetUrlSessionPath (string fileName) {  return Path.Combine("Sessions", SessionName, fileName); }
+		
+		private string SessionPath => Path.Combine("wwwroot", "Sessions", SessionName);
+		private string GetServerSessionPath(string urlPath) => Path.Combine("wwwroot", urlPath);
+		private string GetUrlSessionPath (string fileName) => Path.Combine("Sessions", SessionName, fileName);
 
 		public CameraService(ICamera camera, IFocusAnalysis focusAnalysis, IHostEnvironment env, SettingsService settingService)
 		{
@@ -46,26 +47,13 @@ namespace AstroLib.Model
 			_settingService = settingService;
 		}
 
-		private async Task<PictureFrame> CapturePicture(int quality, string fileName, bool appendVersion)
+		private async Task<byte[]> CapturePicture(int quality)
 		{
-			string savePath = Path.Combine("wwwroot", fileName);
 			Camera.ApplySettings(_settingService.ActiveConfig.Settings);
-			byte[] imageData = await Camera.TakePicture(quality);
-
-			using (Stream fs = File.OpenWrite(savePath))
-			{
-				await fs.WriteAsync(imageData, 0, imageData.Length);
-			}
-			if (appendVersion)
-			{
-				fileName = string.Format("{0}?r={1}", fileName, DateTime.Now.Ticks.ToString("X"));
-			}
-			PictureFrame frame = new PictureFrame { ImageUrl = fileName, FocusScore = _focusAnalysis.Score(imageData) };
-			FrameReady?.Invoke(this, frame);
-			return frame;
+			return await Camera.TakePicture(quality);	
 		}
 
-		public void StartContinuousPictures(int quality, bool isPreview)
+		public void StartContinuousPictures(int quality, bool isPreview, bool createStacked)
 		{
 			if (IsRunning)
 				return;
@@ -74,7 +62,7 @@ namespace AstroLib.Model
 				StartSession();
 
 			_runningToken = new CancellationTokenSource();
-			_runningTask = Task.Run(async () => { await TakeContinousPicturesAsync(quality, isPreview, _runningToken.Token); });
+			_runningTask = Task.Run(async () => { await TakeContinousPicturesAsync(quality, isPreview, createStacked, _runningToken.Token); });
 		}
 
 		public void StopContinuousPictures()
@@ -98,17 +86,41 @@ namespace AstroLib.Model
 
 		}
 
+		private PictureFrame CreatePictureFrame(string fileName, byte[] imageData, bool stacked, bool appendCrumb)
+        {
+			// Append a different value to the img value to ensure it does not use a cached version on the client side (Preview Only)
+			if (appendCrumb)
+			{
+				fileName = string.Format("{0}?r={1}", fileName, DateTime.Now.Ticks.ToString("X"));
+			}
+
+
+			PictureFrame frame = new PictureFrame { ImageUrl = fileName, FocusScore = _focusAnalysis.Score(imageData) };
+			if (stacked)
+				StackedFrameReady?.Invoke(this, frame);
+			else
+				FrameReady?.Invoke(this, frame);
+			return frame;
+		}
+
 		public async Task<PictureFrame> TakePicture(int quality)
 		{
 			StartSession();
 			string imageFileName = GetUrlSessionPath("1.jpg");
-		
-			return await CapturePicture(quality, imageFileName, false);
+			byte[] result = await CapturePicture(quality);
+
+			using (Stream fs = File.OpenWrite(GetServerSessionPath(imageFileName)))
+			{
+				await fs.WriteAsync(result, 0, result.Length);
+			}
+			return CreatePictureFrame(imageFileName, result, false, false);
 		}
 
-		public async Task TakeContinousPicturesAsync(int quality, bool isPreview, CancellationToken token)
+		public async Task TakeContinousPicturesAsync(int quality, bool isPreview, bool createStacked, CancellationToken token)
 		{
-			string imageFileName = "preview.jpg";
+			
+			string stackedFile = createStacked ? GetUrlSessionPath("stacked.png") : string.Empty;
+			StackedImage stackedImage = null;
 
 			// Set a maximum rate to prevent performance issues
 			TimeSpan frameTime = TimeSpan.FromSeconds(0.5);
@@ -121,10 +133,48 @@ namespace AstroLib.Model
 				s.Restart();
 
 				// Save to different file based on timestamp
+				string imageFileName;
 				if (!isPreview)
 					imageFileName = GetUrlSessionPath(string.Format("{0}.jpg", count++));
+				else
+					imageFileName = "preview.jpg";
 
-				await CapturePicture(quality, imageFileName, isPreview);
+				byte[] imageData = await CapturePicture(quality);
+
+				// Save to file
+				using (Stream fs = File.OpenWrite(GetServerSessionPath(imageFileName)))
+				{
+					await fs.WriteAsync(imageData, 0, imageData.Length);
+				}
+
+				CreatePictureFrame(imageFileName, imageData, false, isPreview);
+
+				// Stacking?
+				if (createStacked)
+                {
+					if (stackedImage == null)
+                    {
+						// First frame
+						stackedImage = new StackedImage(imageData);
+                    }
+					else
+                    {
+						// Add
+						stackedImage.AddImage(imageData);
+                    }
+
+					// Save
+					byte[] stackedImageData = stackedImage.GetStackedImage();
+					if (stackedImageData != null)
+                    {
+						using (Stream fs = File.OpenWrite(GetServerSessionPath(stackedFile)))
+						{
+							await fs.WriteAsync(stackedImageData, 0, stackedImageData.Length);
+						}
+					}
+
+					CreatePictureFrame(stackedFile, stackedImageData, true, true);
+                }
 
 				TimeSpan time = frameTime - s.Elapsed;
 				if (time > TimeSpan.Zero)
