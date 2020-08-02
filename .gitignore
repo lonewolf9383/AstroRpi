@@ -1,13 +1,13 @@
 ﻿################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
-/AstroRpi/bin/
-/AstroRpi/obj/
+/AstroRpi/bin
+/AstroRpi/obj
 *.suo
 /AstroLib/bin
 /AstroLib/obj
 /.vs/
 *.user
-/.vs/A
+/.vs/
 /AstroRpi/wwwroot/Sessions
 /AstroRpi/wwwroot/preview.jpg
