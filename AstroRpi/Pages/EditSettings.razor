@@ -30,22 +30,42 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-form-label mx-sm-2 mx-sm-2 col-sm-3 text-sm-right" for="brightness">Brightness</label>
-                    <InputNumber class="form-control col-sm-3 " id="brightness" @bind-Value="@Config.Settings.Brightness" />
-                    <ValidationMessage For="@(() => Config.Settings.Brightness)" />
-
+                    <label class="col-form-label mx-sm-2 mx-sm-2 col-sm-3 text-sm-right" for="brightness">Brightness (@Config.Settings.Brightness)</label>
+                    <div class="col-sm-7">
+                        <input type="range"
+                               min="0"
+                               max="100"
+                               step="1"
+                               class="form-control-range"
+                               @bind-value="@Config.Settings.Brightness"
+                               @bind-value:event="oninput" />
+                    </div>
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="contrast">Contrast</label>
-                    <InputNumber class="form-control col-sm-3" id="contrast" @bind-Value="@Config.Settings.Contrast" />
-                    <ValidationMessage For="@(() => Config.Settings.Contrast)" />
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="contrast">Contrast (@Config.Settings.Contrast)</label>
+                    <div class="col-sm-7">
+                        <input type="range"
+                               min="-100"
+                               max="100"
+                               step="1"
+                               class="form-control-range"
+                               @bind-value="@Config.Settings.Contrast"
+                               @bind-value:event="oninput" />
+                    </div>
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="exposure">Exposure</label>
-                    <InputNumber class="form-control col-sm-3" id="exposure" @bind-Value="@Config.Settings.Exposure" />
-                    <ValidationMessage For="@(() => Config.Settings.Exposure)" />
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="exposure">Exposure (@Config.Settings.Exposure)</label>
+                    <div class="col-sm-7 ">
+                        <input type="range"
+                               min="-10"
+                               max="10"
+                               step="1"
+                               class="form-control-range"
+                               @bind-value="@Config.Settings.Exposure"
+                               @bind-value:event="oninput" />
+                    </div>
                 </div>
 
                 <div class="form-group row">
@@ -69,14 +89,28 @@
 
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="saturation">Saturation</label>
-                    <InputNumber class="form-control col-sm-3" id="saturation" @bind-Value="@Config.Settings.Saturation" />
-                    <ValidationMessage For="@(() => Config.Settings.Saturation)" />
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="saturation">Saturation (@Config.Settings.Saturation)</label>
+                    <div class="col-sm-7">
+                        <input type="range"
+                               min="-100"
+                               max="100"
+                               step="1"
+                               class="form-control-range"
+                               @bind-value="@Config.Settings.Saturation"
+                               @bind-value:event="oninput" />
+                    </div>
                 </div>
                 <div class="form-group row">
-                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="sharpness">Sharpness</label>
-                    <InputNumber class="form-control col-sm-3" id="sharpness" @bind-Value="@Config.Settings.Sharpness" />
-                    <ValidationMessage For="@(() => Config.Settings.Sharpness)" />
+                    <label class="col-form-label mx-sm-2 col-sm-3 text-sm-right" for="sharpness">Sharpness (@Config.Settings.Sharpness)</label>
+                    <div class="col-sm-7">
+                        <input type="range"
+                               min="0"
+                               max="100"
+                               step="1"
+                               class="form-control-range"
+                               @bind-value="@Config.Settings.Sharpness"
+                               @bind-value:event="oninput" />
+                    </div>
                 </div>
 
                 <div class="form-group row">
