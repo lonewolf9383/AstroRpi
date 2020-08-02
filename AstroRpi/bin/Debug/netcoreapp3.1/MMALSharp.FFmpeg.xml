@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MMALSharp.FFmpeg</name>
+    </assembly>
+    <members>
+        <member name="T:MMALSharp.Handlers.FFmpegCaptureHandler">
+            <summary>
+            Experimental FFmpeg specific capture handler.
+            </summary>
+        </member>
+        <member name="P:MMALSharp.Handlers.FFmpegCaptureHandler.Processed">
+            <summary>
+            The total size of data that has been processed by this capture handler.
+            </summary>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.RTMPStreamer(System.String,System.String)">
+            <summary>
+            Streams video from the standard output stream via FFmpeg to an RTMP server.
+            </summary>
+            <param name="streamName">The meta name of the stream.</param>
+            <param name="streamUrl">The url of your RTMP server - the url to stream to.</param>
+            <returns>A new instance of <see cref="T:MMALSharp.Handlers.FFmpegCaptureHandler"/> with process arguments to push to an RTMP stream.</returns>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.RawVideoToAvi(System.String,System.String)">
+            <summary>
+            Records video from the standard output stream via FFmpeg, forcing it into an avi container that can be opened by media players without explicit command line flags.  
+            </summary>
+            <param name="directory">The directory to store the output video file.</param>
+            <param name="filename">The name of the video file.</param>
+            <returns>A new instance of <see cref="T:MMALSharp.Handlers.FFmpegCaptureHandler"/> with process arguments to convert raw video into a compatible AVI container.</returns>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.#ctor(System.String)">
+            <summary>
+            Creates a new instance of <see cref="T:MMALSharp.Handlers.FFmpegCaptureHandler"/> with the specified process arguments.
+            </summary>
+            <param name="argument">The <see cref="T:System.Diagnostics.ProcessStartInfo"/> argument.</param>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.CanSplit">
+            <summary>
+            Returns whether this capture handler features the split file functionality.
+            </summary>
+            <returns>True if can split.</returns>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.PostProcess">
+            <summary>
+            Not used.
+            </summary>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.GetDirectory">
+            <summary>
+            Not used.
+            </summary>
+            <returns>A NotImplementedException.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.Process(System.UInt32)">
+            <summary>
+            Not used.
+            </summary>
+            <param name="allocSize">N/A.</param>
+            <returns>A NotImplementedException.</returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.Process(MMALSharp.Common.ImageContext)">
+            <summary>
+            Writes frame data to the StandardInput stream to be processed by FFmpeg.
+            </summary>
+            <param name="context">Contains the data and metadata for an image frame.</param>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.Split">
+            <summary>
+            Not used.
+            </summary>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.TotalProcessed">
+            <summary>
+            Returns the total number of bytes processed by this capture handler.
+            </summary>
+            <returns>The total number of bytes processed by this capture handler.</returns>
+        </member>
+        <member name="M:MMALSharp.Handlers.FFmpegCaptureHandler.Dispose">
+            <inheritdoc />
+        </member>
+        <member name="T:MMALSharp.FFmpeg.VideoUtilities">
+            <summary>
+            This class provides utility methods for video capturing and converting based on FFmpeg.
+            </summary>
+        </member>
+        <member name="M:MMALSharp.FFmpeg.VideoUtilities.ImagesToVideo(MMALSharp.Handlers.ImageStreamCaptureHandler,System.String,System.Int32)">
+            <summary>
+            Useful for Timelapse captures. Enables you to convert a list of images associated with an ImageStreamCaptureHandler to a video.
+            </summary>
+            <param name="result">The list of images we wish to process.</param>
+            <param name="targetDirectory">The target directory we want to save the video to.</param>
+            <param name="fps">The framerate in fps to set as -framerate parameter for FFmpeg.</param>
+        </member>
+    </members>
+</doc>

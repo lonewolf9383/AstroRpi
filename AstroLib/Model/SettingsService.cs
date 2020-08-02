@@ -84,7 +84,7 @@ namespace AstroLib.Model
 			SaveConfigs();
 		}
 
-		private static string ConfigPath { get { return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AstroCamPi"); } }
+		private static string ConfigPath { get { return System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AstroRpi"); } }
 		public void SaveConfigs()
 		{
 			if (!Directory.Exists(ConfigPath))
