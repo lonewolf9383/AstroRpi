@@ -6,8 +6,9 @@
 *.suo
 /AstroLib/bin
 /AstroLib/obj
+/test/bin
+/test/obj
 /.vs/
 *.user
-/.vs/
 /AstroRpi/wwwroot/Sessions
 /AstroRpi/wwwroot/preview.jpg

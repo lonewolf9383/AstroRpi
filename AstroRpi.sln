@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MMALSharp.FFmpeg", "MMALSha
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MMAL_Sharp", "MMAL_Sharp", "{1347E955-66D7-4DEF-AD7D-64CE61D6B040}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{24B5603D-1FE9-4AF7-B0A1-2FA059F52986}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{0600C674-E587-4267-89F3-B52AE9591F80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0600C674-E587-4267-89F3-B52AE9591F80}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0600C674-E587-4267-89F3-B52AE9591F80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24B5603D-1FE9-4AF7-B0A1-2FA059F52986}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24B5603D-1FE9-4AF7-B0A1-2FA059F52986}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24B5603D-1FE9-4AF7-B0A1-2FA059F52986}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24B5603D-1FE9-4AF7-B0A1-2FA059F52986}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

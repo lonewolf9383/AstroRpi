@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace AstroLib.Model
@@ -17,22 +18,30 @@ namespace AstroLib.Model
 
         public bool AddImage(byte[] imageData)
         {
-            const int MaxIterations = 5000;
-            const double TerminateEps = 1e-10;
+            try
+            {
+                const int MaxIterations = 1000;
+                const double TerminateEps = 1e-8;
 
-            OpenCvSharp.Mat greyscale = OpenCvSharp.Mat.FromImageData(imageData, OpenCvSharp.ImreadModes.Grayscale);
+                OpenCvSharp.Mat greyscale = OpenCvSharp.Mat.FromImageData(imageData, OpenCvSharp.ImreadModes.Grayscale);
 
-            OpenCvSharp.Mat warpMatrix = OpenCvSharp.Mat.Eye(2, 3, OpenCvSharp.MatType.CV_32F);
-            OpenCvSharp.TermCriteria criteria = new OpenCvSharp.TermCriteria(OpenCvSharp.CriteriaType.Count | OpenCvSharp.CriteriaType.Eps, MaxIterations, TerminateEps);
+                OpenCvSharp.Mat warpMatrix = OpenCvSharp.Mat.Eye(2, 3, OpenCvSharp.MatType.CV_32F);
+                OpenCvSharp.TermCriteria criteria = new OpenCvSharp.TermCriteria(OpenCvSharp.CriteriaType.Count | OpenCvSharp.CriteriaType.Eps, MaxIterations, TerminateEps);
 
-            OpenCvSharp.Cv2.FindTransformECC(_originalImageGrey, greyscale, warpMatrix, OpenCvSharp.MotionTypes.Euclidean, criteria);
+                OpenCvSharp.Cv2.FindTransformECC(_originalImageGrey, greyscale, warpMatrix, OpenCvSharp.MotionTypes.Euclidean, criteria);
 
-            // Load the original colour image
-            OpenCvSharp.Mat frame = OpenCvSharp.Mat.FromImageData(imageData, OpenCvSharp.ImreadModes.Color);
+                // Load the original colour image
+                OpenCvSharp.Mat frame = OpenCvSharp.Mat.FromImageData(imageData, OpenCvSharp.ImreadModes.Color);
 
-            OpenCvSharp.Mat warpedFrame = frame.WarpAffine(warpMatrix, _originalImageGrey.Size(), OpenCvSharp.InterpolationFlags.Linear | OpenCvSharp.InterpolationFlags.WarpInverseMap);
-            _stackedImage += warpedFrame;
-            return true;
+                OpenCvSharp.Mat warpedFrame = frame.WarpAffine(warpMatrix, _originalImageGrey.Size(), OpenCvSharp.InterpolationFlags.Linear | OpenCvSharp.InterpolationFlags.WarpInverseMap);
+                _stackedImage += warpedFrame;
+                return true;
+            }
+            catch(Exception ex)
+			{
+                Trace.WriteLine("Error - " + ex.Message);
+                return false;
+			}
         }
 
         public byte[] GetStackedImage()
