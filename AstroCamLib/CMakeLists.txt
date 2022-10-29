@@ -17,6 +17,7 @@ add_library(AstroCamLib STATIC
   astrocamlib.h
   ImageStacker.h
   ImageStacker.cpp
+  Image.h
 )
 
 target_compile_definitions(AstroCamLib PRIVATE ASTROCAMLIB_LIBRARY)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <opencv2/opencv.hpp>
+#include "Image.h"
 
 namespace AstroCamLib
 {
@@ -11,13 +12,17 @@ private:
 
     int MaxFeatures = 500;
     float MatchPercent = 0.15f;
+    ImagePtr _primaryBW;
+    ImagePtr _output;
 
 public:
 
-    ImageStacker();
+    ImageStacker(ImagePtr primary);
     ~ImageStacker();
 
-    void AlignImage(cv::Mat &primaryImg, cv::Mat &alignImage, cv::Mat &alignedImage);
+    ImagePtr GetResult() { return _output; }
+
+    void AlignImage(ImagePtr ptrNewFrame);
 };
 
 }
