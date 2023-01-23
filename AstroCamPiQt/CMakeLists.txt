@@ -45,7 +45,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(AstroCamPiQt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(AstroCamPiQt PRIVATE Qt${QT_VERSION_MAJOR}::Widgets AstroCamLib)
 
 set_target_properties(AstroCamPiQt PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
@@ -55,9 +55,10 @@ set_target_properties(AstroCamPiQt PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-find_package( OpenCV REQUIRED )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
-set(OpenCV_DIR "C:/Devel/OpenCV/build")
+#find_package( OpenCV REQUIRED )
+#include_directories( ${OpenCV_INCLUDE_DIRS} )
+#set(OpenCV_DIR "C:/Devel/OpenCV/build")
+
 
 install(TARGETS AstroCamPiQt
     BUNDLE DESTINATION .

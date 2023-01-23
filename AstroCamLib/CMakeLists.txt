@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package( OpenCV REQUIRED )
 include_directories( ${OpenCV_INCLUDE_DIRS} )
 
-set(OpenCV_DIR "C:/Devel/OpenCV/build")
+#set(OpenCV_DIR "C:/Devel/OpenCV/build")
 
 add_library(AstroCamLib STATIC
   AstroCamLib_global.h
@@ -21,4 +21,4 @@ add_library(AstroCamLib STATIC
 )
 
 target_compile_definitions(AstroCamLib PRIVATE ASTROCAMLIB_LIBRARY)
-target_link_libraries( AstroCamLib ${OpenCV_LIBS} )
+target_link_libraries( AstroCamLib PUBLIC ${OpenCV_LIBS} )

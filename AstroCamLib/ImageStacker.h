@@ -12,15 +12,18 @@ private:
 
     int MaxFeatures = 500;
     float MatchPercent = 0.15f;
-    ImagePtr _primaryBW;
-    ImagePtr _output;
+    ImagePtr _ptrPrimaryBW;
+    ImagePtr _ptrPrimary;
+    std::vector<cv::KeyPoint> _primaryKeypoints;
+    cv::Mat _primaryDescriptors;
+    ImagePtr _ptrOutput;
 
 public:
 
     ImageStacker(ImagePtr primary);
     ~ImageStacker();
 
-    ImagePtr GetResult() { return _output; }
+    ImagePtr GetResult() { return _ptrOutput; }
 
     void AlignImage(ImagePtr ptrNewFrame);
 };

@@ -7,13 +7,11 @@ namespace AstroCamLib
 
 ImageStacker::ImageStacker(ImagePtr ptrPrimary)
 {
-    cv::cvtColor(ptrPrimary->Get(), _primaryBW, cv::COLOR_BGR2GRAY);
+    _ptrPrimary = ptrPrimary;
+    cv::cvtColor(ptrPrimary->Get(), _ptrPrimaryBW->Get(), cv::COLOR_BGR2GRAY);
 
     cv::Ptr<cv::Feature2D> orb = cv::ORB::create(MaxFeatures);
-    orb->detectAndCompute(_primaryBW, cv::Mat(), keypoints1, descriptors1);
-
-    ptrPrimary->Get().
-    _output->Get();
+    orb->detectAndCompute(_ptrPrimaryBW->Get(), cv::Mat(), _primaryKeypoints, _primaryDescriptors);
 }
 
 ImageStacker::~ImageStacker()
@@ -37,7 +35,7 @@ void ImageStacker::AlignImage(ImagePtr ptrNewFrame)
     // Match the features
     std::vector<cv::DMatch> matches;
     cv::Ptr<cv::DescriptorMatcher> matcher = cv::DescriptorMatcher::create("BruteForce-Hamming");
-    matcher->match(_descriptors, descriptors, matches, cv::Mat());
+    matcher->match(_primaryDescriptors, descriptors, matches, cv::Mat());
 
     // Sort by score
     std::sort(matches.begin(), matches.end());
@@ -56,13 +54,13 @@ void ImageStacker::AlignImage(ImagePtr ptrNewFrame)
     std::vector<cv::Point2f> points1, points2;
     for(size_t i = 0; i < matches.size(); ++i)
     {
-        points1.push_back(keypoints1[matches[i].queryIdx].pt);
-        points2.push_back(keypoints2[matches[i].trainIdx].pt);
+        points1.push_back(_primaryKeypoints[matches[i].queryIdx].pt);
+        points2.push_back(keypoints[matches[i].trainIdx].pt);
     }
 
     // Find homography
     cv::Mat h = cv::findHomography(points1, points2, cv::RANSAC);
-    cv::warpPerspective(ptrNewFrame->Get(), ptrOut->Get(), h, ptrPrimary->Get().size());
+    cv::warpPerspective(ptrNewFrame->Get(), _ptrOutput->Get(), h, _ptrPrimary->Get().size());
 }
 
 }

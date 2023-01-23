@@ -32,12 +32,13 @@ void MainWindow::on_actionStack_triggered()
         loadedImages.push_back(AstroCamLib::Image::FromFile(s.toStdString()));
     }
 
-    AstroCamLib::ImageStacker stacker;
-
-    auto ptrPrimary = loadedImages.front();
-    for (auto ptr = ptrPrimary+1; ptr != loadedImages.end(); ++ptr)
+    
+    auto ptr = loadedImages.begin();
+    AstroCamLib::ImageStacker stacker(*ptr);
+    ++ptr;
+    for (; ptr != loadedImages.end(); ++ptr)
     {
-        stacker.AlignImage(ptrPrimary, ptr, ptrOut);
+        stacker.AlignImage(*ptr);
     }
 
 }
